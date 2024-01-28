@@ -49,6 +49,7 @@ public class ClimateDataProcessingJob implements Serializable {
     private FileSink<WeekClimateRecord> getFileSink() {
         OutputFileConfig outputFileConfig = OutputFileConfig.builder()
                 .withPartPrefix("climateDataByWeek")
+                .withPartSuffix(".csv")
                 .build();
         return FileSink.forRowFormat(new Path("out"), stringEncoder())
                 .withOutputFileConfig(outputFileConfig)

@@ -3,6 +3,9 @@ package de.bytewright.demo.flinkstreaming.climatedata;
 import de.bytewright.demo.flinkstreaming.climatedata.dto.ClimateData;
 import de.bytewright.demo.flinkstreaming.climatedata.dto.ClimateRecord;
 import de.bytewright.demo.flinkstreaming.climatedata.dto.WeekClimateRecord;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.CoreOptions;
+import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
@@ -16,6 +19,11 @@ public class ClimateStreamerExample implements InitializingBean, DisposableBean 
     private StreamExecutionEnvironment env;
 
     public void start() {
+        env = LocalStreamEnvironment.createLocalEnvironment();
+        env.getConfig().registerKryoType(ClimateData.class);
+        env.getConfig().registerKryoType(ClimateRecord.class);
+        env.getConfig().registerKryoType(WeekClimateRecord.class);
+        LOGGER.info("LocalStreamEnvironment created: {}", env);
         ClimateDataProcessingJob job = new ClimateDataProcessingJob();
         job.start(env);
         try {
@@ -32,10 +40,17 @@ public class ClimateStreamerExample implements InitializingBean, DisposableBean 
 
     @Override
     public void afterPropertiesSet() {
-        env = LocalStreamEnvironment.createLocalEnvironment();
+        env = LocalStreamEnvironment.createLocalEnvironmentWithWebUI(getEnvironmentConfig());
         env.getConfig().registerKryoType(ClimateData.class);
         env.getConfig().registerKryoType(ClimateRecord.class);
         env.getConfig().registerKryoType(WeekClimateRecord.class);
         LOGGER.info("LocalStreamEnvironment created: {}", env);
+    }
+
+    private Configuration getEnvironmentConfig() {
+        Configuration configuration = new Configuration();
+        configuration.setString(CoreOptions.TMP_DIRS, "tmp");
+        configuration.setInteger(RestOptions.PORT, 8899);
+        return configuration;
     }
 }

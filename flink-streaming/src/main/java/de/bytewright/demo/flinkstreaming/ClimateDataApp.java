@@ -1,6 +1,7 @@
 package de.bytewright.demo.flinkstreaming;
 
 import de.bytewright.demo.flinkstreaming.climatedata.ClimateStreamerExample;
+import de.bytewright.demo.flinkstreaming.kafka.ClimateDataSenderExample;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.shell.standard.ShellComponent;
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class ClimateDataApp {
     private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ClimateDataApp.class);
     private final ClimateStreamerExample climateStreamerExample;
+    private final ClimateDataSenderExample climateDataSenderExample;
 
 
     @ShellMethod(key = "climate")
@@ -24,5 +26,12 @@ public class ClimateDataApp {
         climateStreamerExample.start();
         stopWatch.stop();
         return stopWatch.prettyPrint(TimeUnit.SECONDS);
+    }
+
+    @ShellMethod(key = "kafka-sender")
+    public String startKafkaDataSender() {
+        LOGGER.info("Starting kafka climate sender example...");
+        climateDataSenderExample.start();
+        return "Started sender thread, one data row per 100 ms";
     }
 }
